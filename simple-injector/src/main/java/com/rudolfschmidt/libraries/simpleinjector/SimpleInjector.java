@@ -18,6 +18,8 @@ package com.rudolfschmidt.libraries.simpleinjector;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -30,37 +32,42 @@ public class SimpleInjector {
 	}
 
 	public <T> T getInstance(Class<T> clazz) {
-		if (clazz.equals(String.class)) {
+		return getExceptionHandledInstance(clazz);
+	}
+
+	public <T> T getExceptionUnhandledInstance(Class<T> clazz) throws InstantiationException, IllegalAccessException, InvocationTargetException {
+		return createInstance(clazz);
+	}
+
+	public <T> T getExceptionHandledInstance(Class<T> clazz) {
+		try {
 			return createInstance(clazz);
+		} catch (InstantiationException | IllegalAccessException | InvocationTargetException ex) {
+			Logger.getLogger(SimpleInjector.class.getName()).log(Level.SEVERE, null, ex);
+			throw new IllegalArgumentException(ex);
+		}
+	}
+
+	private <T> T createInstance(Class<T> clazz) throws InstantiationException, IllegalAccessException, InvocationTargetException {
+		if (clazz.equals(String.class)) {
+			return clazz.newInstance();
 		}
 		final Constructor<?>[] constructors = clazz.getConstructors();
 		if (constructors.length > 1) {
 			throw new IllegalArgumentException("Only one constructor is allowed: " + clazz);
 		} else if (constructors.length == 0) {
-			return createInstance(clazz);
-		} else if (constructors.length == 1 && constructors[0].getParameterTypes().length == 0) {
-			return createInstance(clazz);
-		}
-		final Constructor<?> constructor = constructors[0];
-		final Class<?>[] parameterTypes = constructor.getParameterTypes();
-		final Object[] parameterInstances = new Object[parameterTypes.length];
-		for (int i = 0; i < parameterInstances.length; i++) {
-			parameterInstances[i] = getInstance(parameterTypes[i]);
-		}
-		final Object newInstance;
-		try {
-			newInstance = constructor.newInstance(parameterInstances);
-		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
-			throw new IllegalArgumentException(ex);
-		}
-		return (T) newInstance;
-	}
-
-	private <T> T createInstance(Class<T> clazz) {
-		try {
 			return clazz.newInstance();
-		} catch (InstantiationException | IllegalAccessException ex) {
-			throw new IllegalArgumentException(ex);
+		} else if (constructors.length == 1 && constructors[0].getParameterTypes().length == 0) {
+			return clazz.newInstance();
+		} else {
+			final Constructor<?> constructor = constructors[0];
+			final Class<?>[] parameterTypes = constructor.getParameterTypes();
+			final Object[] parameterInstances = new Object[parameterTypes.length];
+			for (int i = 0; i < parameterInstances.length; i++) {
+				parameterInstances[i] = getInstance(parameterTypes[i]);
+			}
+			final Object newInstance = constructor.newInstance(parameterInstances);
+			return (T) newInstance;
 		}
 	}
 }
