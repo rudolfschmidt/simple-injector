@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.rudolfschmidt.libraries.simpleinjector;
+package com.rudolfschmidt.simpleinjector;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -38,34 +38,36 @@ public class SimpleInjector {
 			}
 		}
 		final Constructor<?>[] constructors = clazz.getConstructors();
-		if (constructors.length > 1) {
+		final int length = constructors.length;
+		if (length > 1) {
 			throw new IllegalArgumentException("Only one constructor is allowed: " + clazz);
-		} else if (constructors.length == 0) {
-			try {
-				return clazz.newInstance();
-			} catch (InstantiationException | IllegalAccessException ex) {
-				throw new IllegalArgumentException(ex);
-			}
-		} else if (constructors.length == 1 && constructors[0].getParameterTypes().length == 0) {
-			try {
-				return clazz.newInstance();
-			} catch (InstantiationException | IllegalAccessException ex) {
-				throw new IllegalArgumentException(ex);
-			}
-		} else {
-			final Constructor<?> constructor = constructors[0];
-			final Class<?>[] parameterTypes = constructor.getParameterTypes();
-			final Object[] parameterInstances = new Object[parameterTypes.length];
-			for (int i = 0; i < parameterInstances.length; i++) {
-				parameterInstances[i] = getInstance(parameterTypes[i]);
-			}
-			final Object newInstance;
-			try {
-				newInstance = constructor.newInstance(parameterInstances);
-			} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
-				throw new IllegalArgumentException(ex);
-			}
-			return (T) newInstance;
 		}
+		if (length == 0) {
+			try {
+				return clazz.newInstance();
+			} catch (InstantiationException | IllegalAccessException ex) {
+				throw new IllegalArgumentException(ex);
+			}
+		}
+		if (length == 1 && constructors[0].getParameterTypes().length == 0) {
+			try {
+				return clazz.newInstance();
+			} catch (InstantiationException | IllegalAccessException ex) {
+				throw new IllegalArgumentException(ex);
+			}
+		}
+		final Constructor<?> constructor = constructors[0];
+		final Class<?>[] parameterTypes = constructor.getParameterTypes();
+		final Object[] parameterInstances = new Object[parameterTypes.length];
+		for (int i = 0; i < parameterInstances.length; i++) {
+			parameterInstances[i] = getInstance(parameterTypes[i]);
+		}
+		final Object newInstance;
+		try {
+			newInstance = constructor.newInstance(parameterInstances);
+		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
+			throw new IllegalArgumentException(ex);
+		}
+		return (T) newInstance;
 	}
 }
