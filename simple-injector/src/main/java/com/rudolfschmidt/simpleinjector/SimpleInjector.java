@@ -33,27 +33,21 @@ public class SimpleInjector {
 	 */
 	public <T> T getInstance(Class<T> clazz) {
 
+		final Constructor<?>[] constructors = clazz.getConstructors();
+
 		if (clazz.equals(String.class)) {
 			return getSimpleInstsance(clazz);
-		}
-
-		final Constructor<?>[] constructors = clazz.getConstructors();
-		final Constructor<?> constructor = constructors[0];
-		final Class<?>[] parameterTypes = constructor.getParameterTypes();
-
-		if (constructors.length == 0 || constructors.length == 1 && parameterTypes.length == 0) {
+		} else if (constructors.length == 0) {
 			return getSimpleInstsance(clazz);
+		} else if (constructors.length == 1) {
+			final int length = constructors[0].getParameterTypes().length;
+			if (length == 0) {
+				return getSimpleInstsance(clazz);
+			} else if (length > 0) {
+				return (T) getConstructorInstance(constructors[0]);
+			}
 		}
-
-		if (constructors.length == 1 && parameterTypes.length > 0) {
-			return (T) getConstructorInstance(constructor);
-		}
-
-		if (constructors.length > 1) {
-			return getMultiContructorsInstance(clazz);
-		}
-
-		throw new IllegalStateException();
+		return getMultiContructorsInstance(clazz);
 	}
 
 	/*
