@@ -17,7 +17,6 @@
 package com.rudolfschmidt.simpleinjector;
 
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 
 /**
  *
@@ -29,34 +28,38 @@ public class SimpleInjector {
 		return new SimpleInjector();
 	}
 
+	/*
+	 * create an instance of given class
+	 */
 	public <T> T getInstance(Class<T> clazz) {
+
 		if (clazz.equals(String.class)) {
-			try {
-				return clazz.newInstance();
-			} catch (InstantiationException | IllegalAccessException ex) {
-				throw new IllegalArgumentException(ex);
-			}
+			return getSimpleInstsance(clazz);
 		}
+
 		final Constructor<?>[] constructors = clazz.getConstructors();
-		final int length = constructors.length;
-		if (length > 1) {
-			throw new IllegalArgumentException("Only one constructor is allowed: " + clazz);
-		}
-		if (length == 0) {
-			try {
-				return clazz.newInstance();
-			} catch (InstantiationException | IllegalAccessException ex) {
-				throw new IllegalArgumentException(ex);
-			}
-		}
-		if (length == 1 && constructors[0].getParameterTypes().length == 0) {
-			try {
-				return clazz.newInstance();
-			} catch (InstantiationException | IllegalAccessException ex) {
-				throw new IllegalArgumentException(ex);
-			}
-		}
 		final Constructor<?> constructor = constructors[0];
+		final Class<?>[] parameterTypes = constructor.getParameterTypes();
+
+		if (constructors.length == 0 || constructors.length == 1 && parameterTypes.length == 0) {
+			return getSimpleInstsance(clazz);
+		}
+
+		if (constructors.length == 1 && parameterTypes.length > 0) {
+			return (T) getConstructorInstance(constructor);
+		}
+
+		if (constructors.length > 1) {
+			return getMultiContructorsInstance(clazz);
+		}
+
+		throw new IllegalStateException();
+	}
+
+	/*
+	 * object creation with exactly one constructor and multiplied dependencies.
+	 */
+	private Object getConstructorInstance(Constructor<?> constructor) {
 		final Class<?>[] parameterTypes = constructor.getParameterTypes();
 		final Object[] parameterInstances = new Object[parameterTypes.length];
 		for (int i = 0; i < parameterInstances.length; i++) {
@@ -65,9 +68,28 @@ public class SimpleInjector {
 		final Object newInstance;
 		try {
 			newInstance = constructor.newInstance(parameterInstances);
-		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
+		} catch (ReflectiveOperationException ex) {
 			throw new IllegalArgumentException(ex);
 		}
-		return (T) newInstance;
+		return newInstance;
 	}
+
+	/*
+	 * simple object creation without constructor
+	 */
+	private <T> T getSimpleInstsance(Class<T> clazz) {
+		try {
+			return clazz.newInstance();
+		} catch (ReflectiveOperationException ex) {
+			throw new IllegalArgumentException(ex);
+		}
+	}
+
+	/*
+	 * complex object creation with multi constructors
+	 */
+	private <T> T getMultiContructorsInstance(Class<T> clazz) {
+		throw new UnsupportedOperationException();
+	}
+
 }
