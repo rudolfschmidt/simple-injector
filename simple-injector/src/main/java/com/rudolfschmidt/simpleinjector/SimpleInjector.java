@@ -24,12 +24,21 @@ import java.lang.reflect.Constructor;
  */
 public class SimpleInjector {
 
+	/**
+	 * Returns an instance of the injector
+	 *
+	 * @return an instance of the injector
+	 */
 	public static SimpleInjector getInjector() {
 		return new SimpleInjector();
 	}
 
-	/*
-	 * create an instance of given class
+	/**
+	 * Creates an instance of clazz
+	 *
+	 * @param <T> can be any type
+	 * @param clazz the clazz reference
+	 * @return a new instance of given clazz
 	 */
 	public <T> T getInstance(Class<T> clazz) {
 
@@ -47,11 +56,16 @@ public class SimpleInjector {
 				return (T) getConstructorInstance(constructors[0]);
 			}
 		}
+
 		return getMultiContructorsInstance(clazz);
 	}
 
-	/*
-	 * object creation with exactly one constructor and multiplied dependencies.
+	/**
+	 * Creates an instance with given constructor. Object dependencies will be
+	 * built recursivly.
+	 *
+	 * @param constructor the constructor a new instance built with
+	 * @return a new instance built with the constructor
 	 */
 	private Object getConstructorInstance(Constructor<?> constructor) {
 		final Class<?>[] parameterTypes = constructor.getParameterTypes();
@@ -68,8 +82,14 @@ public class SimpleInjector {
 		return newInstance;
 	}
 
-	/*
-	 * simple object creation without constructor
+	/**
+	 * Creates a new instance of given clazz. the clazz has to be simple to be
+	 * built. either no constructor or only one constructor without any
+	 * parameters are allowed.
+	 *
+	 * @param <T> can be any type
+	 * @param clazz the clazz reference
+	 * @return an instance created with the clazz reference.
 	 */
 	private <T> T getSimpleInstsance(Class<T> clazz) {
 		try {
@@ -79,8 +99,14 @@ public class SimpleInjector {
 		}
 	}
 
-	/*
-	 * complex object creation with multi constructors
+	/**
+	 * Handles the usecase an object with multiplied constructors is supposed to
+	 * be built. the implementation is not complete.
+	 *
+	 * @param <T> can be any type
+	 * @param clazzn a reference of the clazz a new instance is supposed to be
+	 * built with.
+	 * @return a new object instance of type T.
 	 */
 	private <T> T getMultiContructorsInstance(Class<T> clazz) {
 		throw new UnsupportedOperationException();

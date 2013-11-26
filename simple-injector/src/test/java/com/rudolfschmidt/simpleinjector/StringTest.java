@@ -16,11 +16,7 @@
  */
 package com.rudolfschmidt.simpleinjector;
 
-import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 /**
@@ -31,20 +27,22 @@ public class StringTest {
 
 	private final SimpleInjector injector = SimpleInjector.getInjector();
 
-	@BeforeClass
-	public static void setUpClass() {
+	@Test
+	public void simple() {
+		final Simple instance = injector.getInstance(Simple.class);
+		Assert.assertNotNull(instance);
+		Assert.assertNotNull(instance.s);
+		Assert.assertEquals("", instance.s);
 	}
 
-	@AfterClass
-	public static void tearDownClass() {
-	}
-
-	@Before
-	public void setUp() {
-	}
-
-	@After
-	public void tearDown() {
+	@Test
+	public void multi() {
+		final Multi instance = injector.getInstance(Multi.class);
+		Assert.assertNotNull(instance);
+		Assert.assertNotNull(instance.s1);
+		Assert.assertNotNull(instance.s2);
+		Assert.assertEquals("", instance.s1);
+		Assert.assertEquals("", instance.s2);
 	}
 
 	public static class Simple {
@@ -69,21 +67,4 @@ public class StringTest {
 
 	}
 
-	@Test
-	public void simple() {
-		final Simple instance = injector.getInstance(Simple.class);
-		Assert.assertNotNull(instance);
-		Assert.assertNotNull(instance.s);
-		Assert.assertEquals("", instance.s);
-	}
-
-	@Test
-	public void multi() {
-		final Multi instance = injector.getInstance(Multi.class);
-		Assert.assertNotNull(instance);
-		Assert.assertNotNull(instance.s1);
-		Assert.assertNotNull(instance.s2);
-		Assert.assertEquals("", instance.s1);
-		Assert.assertEquals("", instance.s2);
-	}
 }

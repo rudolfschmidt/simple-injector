@@ -16,11 +16,7 @@
  */
 package com.rudolfschmidt.simpleinjector;
 
-import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 /**
@@ -31,20 +27,41 @@ public class ObjectTest {
 
 	private final SimpleInjector injector = SimpleInjector.getInjector();
 
-	@BeforeClass
-	public static void setUpClass() {
+	@Test
+	public void withoutConstructor() {
+		final WithoutConstructor instance = injector.getInstance(WithoutConstructor.class);
+		Assert.assertNotNull(instance);
 	}
 
-	@AfterClass
-	public static void tearDownClass() {
+	@Test
+	public void withEmptyConstructor() {
+		final WithEmptyConstructor instance = injector.getInstance(WithEmptyConstructor.class);
+		Assert.assertNotNull(instance);
 	}
 
-	@Before
-	public void setUp() {
+	@Test
+	public void dependencies() {
+		final Dependencies instance = injector.getInstance(Dependencies.class);
+		Assert.assertNotNull(instance);
+		Assert.assertNotNull(instance.a);
+		Assert.assertNotNull(instance.b);
 	}
 
-	@After
-	public void tearDown() {
+	@Test
+	public void complexDependencies() {
+		final ComplexDependencies instance = injector.getInstance(ComplexDependencies.class);
+		Assert.assertNotNull(instance);
+		Assert.assertNotNull(instance.a);
+		Assert.assertNotNull(instance.a.a);
+		Assert.assertNotNull(instance.a.b);
+		Assert.assertNotNull(instance.b);
+		Assert.assertNotNull(instance.b.a);
+		Assert.assertNotNull(instance.b.b);
+	}
+
+	@Test(expected = UnsupportedOperationException.class)
+	public void multiConstructors() {
+		final MultiConstructors instance = injector.getInstance(MultiConstructors.class);
 	}
 
 	public static class WithoutConstructor {
@@ -99,42 +116,4 @@ public class ObjectTest {
 		}
 
 	}
-
-	@Test
-	public void withoutConstructor() {
-		final WithoutConstructor instance = injector.getInstance(WithoutConstructor.class);
-		Assert.assertNotNull(instance);
-	}
-
-	@Test
-	public void withEmptyConstructor() {
-		final WithEmptyConstructor instance = injector.getInstance(WithEmptyConstructor.class);
-		Assert.assertNotNull(instance);
-	}
-
-	@Test
-	public void dependencies() {
-		final Dependencies instance = injector.getInstance(Dependencies.class);
-		Assert.assertNotNull(instance);
-		Assert.assertNotNull(instance.a);
-		Assert.assertNotNull(instance.b);
-	}
-
-	@Test
-	public void complexDependencies() {
-		final ComplexDependencies instance = injector.getInstance(ComplexDependencies.class);
-		Assert.assertNotNull(instance);
-		Assert.assertNotNull(instance.a);
-		Assert.assertNotNull(instance.a.a);
-		Assert.assertNotNull(instance.a.b);
-		Assert.assertNotNull(instance.b);
-		Assert.assertNotNull(instance.b.a);
-		Assert.assertNotNull(instance.b.b);
-	}
-
-	@Test(expected = UnsupportedOperationException.class)
-	public void multiConstructors() {
-		final MultiConstructors instance = injector.getInstance(MultiConstructors.class);
-	}
-
 }
