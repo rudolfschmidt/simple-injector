@@ -41,33 +41,32 @@ public class SimpleInjector {
 		final int length = constructors.length;
 		if (length > 1) {
 			throw new IllegalArgumentException("Only one constructor is allowed: " + clazz);
-		}
-		if (length == 0) {
+		} else if (length == 0) {
 			try {
 				return clazz.newInstance();
 			} catch (InstantiationException | IllegalAccessException ex) {
 				throw new IllegalArgumentException(ex);
 			}
-		}
-		if (length == 1 && constructors[0].getParameterTypes().length == 0) {
+		} else if (length == 1 && constructors[0].getParameterTypes().length == 0) {
 			try {
 				return clazz.newInstance();
 			} catch (InstantiationException | IllegalAccessException ex) {
 				throw new IllegalArgumentException(ex);
 			}
+		} else {
+			final Constructor<?> constructor = constructors[0];
+			final Class<?>[] parameterTypes = constructor.getParameterTypes();
+			final Object[] parameterInstances = new Object[parameterTypes.length];
+			for (int i = 0; i < parameterInstances.length; i++) {
+				parameterInstances[i] = getInstance(parameterTypes[i]);
+			}
+			final Object newInstance;
+			try {
+				newInstance = constructor.newInstance(parameterInstances);
+			} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
+				throw new IllegalArgumentException(ex);
+			}
+			return (T) newInstance;
 		}
-		final Constructor<?> constructor = constructors[0];
-		final Class<?>[] parameterTypes = constructor.getParameterTypes();
-		final Object[] parameterInstances = new Object[parameterTypes.length];
-		for (int i = 0; i < parameterInstances.length; i++) {
-			parameterInstances[i] = getInstance(parameterTypes[i]);
-		}
-		final Object newInstance;
-		try {
-			newInstance = constructor.newInstance(parameterInstances);
-		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
-			throw new IllegalArgumentException(ex);
-		}
-		return (T) newInstance;
 	}
 }
