@@ -28,15 +28,14 @@ public class ObjectTest {
 	private final SimpleInjector injector = SimpleInjector.getInjector();
 
 	@Test
-	public void withoutConstructor() {
-		final WithoutConstructor instance = injector.getInstance(WithoutConstructor.class);
+	public void simple() {
+		final Simple instance = injector.getInstance(Simple.class);
 		Assert.assertNotNull(instance);
 	}
 
-	@Test
-	public void withEmptyConstructor() {
-		final WithEmptyConstructor instance = injector.getInstance(WithEmptyConstructor.class);
-		Assert.assertNotNull(instance);
+	@Test(expected = IllegalArgumentException.class)
+	public void hiddenConstructor() {
+		final HiddenConstructor instance = injector.getInstance(HiddenConstructor.class);
 	}
 
 	@Test
@@ -64,23 +63,23 @@ public class ObjectTest {
 		final MultiConstructors instance = injector.getInstance(MultiConstructors.class);
 	}
 
-	public static class WithoutConstructor {
+	public static class Simple {
 
 	}
 
-	public static class WithEmptyConstructor {
+	public static class HiddenConstructor {
 
-		public WithEmptyConstructor() {
+		private HiddenConstructor() {
+
 		}
-
 	}
 
 	public static class Dependencies {
 
-		private final WithoutConstructor a;
-		private final WithoutConstructor b;
+		private final Simple a;
+		private final Simple b;
 
-		public Dependencies(WithoutConstructor a, WithoutConstructor b) {
+		public Dependencies(Simple a, Simple b) {
 			this.a = a;
 			this.b = b;
 		}
@@ -103,14 +102,14 @@ public class ObjectTest {
 
 	public static class MultiConstructors {
 
-		private WithoutConstructor a;
-		private WithoutConstructor b;
+		private Simple a;
+		private Simple b;
 
-		public MultiConstructors(WithoutConstructor a) {
+		public MultiConstructors(Simple a) {
 			this.a = a;
 		}
 
-		public MultiConstructors(WithoutConstructor a, WithoutConstructor b) {
+		public MultiConstructors(Simple a, Simple b) {
 			this.a = a;
 			this.b = b;
 		}

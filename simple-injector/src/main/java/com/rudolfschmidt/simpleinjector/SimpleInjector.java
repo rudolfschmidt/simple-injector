@@ -49,15 +49,15 @@ public class SimpleInjector {
 		} else if (constructors.length == 0) {
 			return getSimpleInstsance(clazz);
 		} else if (constructors.length == 1) {
-			final int length = constructors[0].getParameterTypes().length;
-			if (length == 0) {
+			final Constructor<?> constructor = constructors[0];
+			if (constructor.getParameterTypes().length == 0) {
 				return getSimpleInstsance(clazz);
-			} else if (length > 0) {
-				return (T) getConstructorInstance(constructors[0]);
+			} else {
+				return (T) getConstructorInstance(constructor);
 			}
+		} else {
+			return getMultiContructorsInstance(clazz);
 		}
-
-		return getMultiContructorsInstance(clazz);
 	}
 
 	/**
